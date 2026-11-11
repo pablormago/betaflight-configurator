@@ -3,6 +3,19 @@
         <div class="app-wrapper">
             <div id="background" v-if="isMobileSidebarOpen" aria-hidden="true" @click="isRevealed = false"></div>
             <div id="side_menu_swipe"></div>
+            <!-- Spot&Fly: en navegador móvil no había forma de abrir el menú (el botón se quitó en a3379c11 para la
+                 app Android, que usa otra barra). Botón flotante solo en pantalla estrecha y fuera de esa app. -->
+            <UButton
+                v-if="showBrowserMenuButton"
+                class="floating-menu"
+                icon="i-lucide-menu"
+                color="neutral"
+                variant="soft"
+                size="lg"
+                square
+                :aria-label="$t('openSidebarMenu')"
+                @click="isRevealed = !isRevealed"
+            />
             <div v-if="isLandingTab" class="mobile-topbar" :class="{ 'mobile-topbar--hidden': topbarHidden }">
                 <div class="mobile-topbar__logo" :title="logoTooltip" aria-hidden="true"></div>
             </div>
@@ -148,6 +161,7 @@ const isLandingTab = computed(() => vueTabState.activeTabName === "landing");
 // longer opens. Teleport it into the floating chrome there, and leave it in place everywhere else.
 const isAppShell = isAndroid();
 const useFloatingChrome = computed(() => isAppShell && isCompactBreakpoint.value);
+const showBrowserMenuButton = computed(() => !isAppShell && isCompactBreakpoint.value);
 
 const topbarHidden = ref(false);
 let lastScrollTop = 0;
@@ -320,6 +334,25 @@ watch(
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     box-shadow: var(--shadow-chrome-floating);
+}
+
+/* Spot&Fly: botón ☰ del navegador móvil, por encima del cajón (z-index 2000) para poder cerrarlo también */
+.floating-menu {
+    position: fixed;
+    top: calc(0.5rem + var(--bf-inset-top));
+    left: 0.75rem;
+    z-index: 2002;
+    border-radius: 9999px;
+    border: 1px solid var(--surface-200);
+    box-shadow: var(--shadow-chrome-floating);
+}
+body:not(.mobile-app-shell) {
+    @media all and (max-width: 575px), all and (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
+        /* Hueco arriba para que el botón no tape el título de la pestaña */
+        #content {
+            padding-top: calc(3rem + var(--bf-inset-top));
+        }
+    }
 }
 
 .mobile-topbar--hidden {
