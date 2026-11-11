@@ -3042,6 +3042,10 @@
     "motorsMaster": {
         "message": "Maestro"
     },
+    "spotandflyMotorsRemote": {
+        "message": "<strong>Prueba de motores no disponible en remoto.</strong><br />Desde la web, por seguridad, los motores no se pueden girar. Pide al dueño del dron que haga la prueba desde la app Spot&amp;Fly. El resto de esta pestaña sí se puede cambiar.",
+        "description": "Spot&Fly: aviso en Motores cuando se conecta por Spot&Fly remoto"
+    },
     "motorsNotice": {
         "message": "<strong>Aviso Modo Prueba de Motor / Armado:</strong><br /><br /><strong class=\"message-negative\">ADVERTENCIA: ¡Riesgo de lesión grave! ¡Quita todas las hélices!</strong><br /><br /><ul><li>&#x2022; Los motores girarán al armar o cuando se suban los deslizadores</li><li>&#x2022; El modo de prueba de motor permanecerá activo aunque te vayas a otra pestaña</li><li>&#x2022; Pulsar cualquier tecla detendrá los motores, pero sólo en la pestaña Motores</li><li>&#x2022; ¡Desconectar el cable USB puede que no detenga los motores!</li></ul>"
     },

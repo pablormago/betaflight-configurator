@@ -3599,6 +3599,10 @@
     "motorsMaster": {
         "message": "Master"
     },
+    "spotandflyMotorsRemote": {
+        "message": "<strong>Motor test not available remotely.</strong><br />For safety, motors cannot be spun from the web. Ask the drone's owner to run the test from the Spot&amp;Fly app. Everything else on this tab can be changed.",
+        "description": "Spot&Fly: aviso en Motores cuando se conecta por Spot&Fly remoto"
+    },
     "motorsNotice": {
         "message": "<strong>Motor Test Mode / Arming Notice:</strong><br /><br /><strong class=\"message-negative\">WARNING: Serious risk of injury! Remove all propellers!</strong><br /><br /><ul><li>&#x2022; Motors will spin up when armed or when sliders are raised</li><li>&#x2022; Motor test mode will remain active after moving to another Tab</li><li>&#x2022; Hitting any key will stop the motors, but only in the Motors Tab</li><li>&#x2022; Disconnecting the USB cable may not stop the motors!</li></ul>"
     },

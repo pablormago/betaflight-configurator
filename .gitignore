@@ -56,3 +56,6 @@ components.d.ts
 /*.pem
 /CLAUDE.md
 /.claude
+
+# Spot&Fly: configuración web local de Firebase
+.env.local

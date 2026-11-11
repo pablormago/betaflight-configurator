@@ -483,7 +483,11 @@
                             </div>
                         </div>
 
-                        <div class="p-3 border border-red-500/30 rounded-md bg-red-500/5">
+                        <!-- Spot&Fly remoto: el anfitrión nunca deja girar motores desde la web; solo desde la app -->
+                        <div v-if="spotAndFlyRemote" class="p-3 border border-amber-500/40 rounded-md bg-amber-500/5">
+                            <p class="text-sm" v-html="$t('spotandflyMotorsRemote')"></p>
+                        </div>
+                        <div v-else class="p-3 border border-red-500/30 rounded-md bg-red-500/5">
                             <p class="text-sm mb-2" v-html="$t('motorsNotice')"></p>
                             <SettingRow :label="$t('motorsEnableControl')" fullWidth>
                                 <USwitch v-model="motorsTestingEnabled" :disabled="!appliedStateReady" size="xs" />
@@ -589,9 +593,13 @@ import { usePortConflicts } from "@/composables/ports/usePortConflicts";
 import { useBuildOptions } from "@/composables/useBuildOptions";
 import { runTabLoad } from "@/composables/useTabLoad";
 import { API_VERSION_1_47, API_VERSION_1_49 } from "@/js/data_storage";
+import { serial } from "@/js/serial";
+import SpotAndFlyRemote from "@/js/protocols/SpotAndFlyRemote";
 
 const fcStore = useFlightControllerStore();
 const dialog = useDialog();
+// Conectado por «Spot&Fly remoto»: la prueba de motores no se ofrece (el anfitrión la deniega)
+const spotAndFlyRemote = serial._protocol instanceof SpotAndFlyRemote;
 const { hasBuildOption } = useBuildOptions();
 
 // Initialize motors state management

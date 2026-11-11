@@ -28,7 +28,8 @@
 // /dev/ttyUSB0 names hardware on one machine and means nothing on the recipient's, so it is
 // never accepted from a link — and neither is anything else, which keeps javascript:/data:
 // and other surprises out of a value that ends up driving a connection.
-const ALLOWED_SCHEMES = new Set(["ws:", "wss:", "tcp:"]);
+// Spot&Fly: también spotandfly://CÓDIGO (sesión remota compartida desde la app; el enlace lo comparte el anfitrión).
+const ALLOWED_SCHEMES = new Set(["ws:", "wss:", "tcp:", "spotandfly:"]);
 
 // An arbitrary sanity bound on the whole "scheme://host:port" string — not a protocol limit.
 // A real target is short, so this exists only to reject a hand-crafted link that stuffs an

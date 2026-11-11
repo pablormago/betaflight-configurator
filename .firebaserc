@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "spotitfy-71f61"
+  },
+  "targets": {
+    "spotitfy-71f61": {
+      "hosting": {
+        "betaflight": [
+          "spotandfly-betaflight"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

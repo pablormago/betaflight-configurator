@@ -23,6 +23,7 @@ import WebSerial, { type WebSerialPort } from "./protocols/WebSerial";
 import WebBluetooth from "./protocols/WebBluetooth";
 import Websocket from "./protocols/WebSocket";
 import VirtualSerial, { type VirtualDevice } from "./protocols/VirtualSerial";
+import SpotAndFlyRemote, { SPOTANDFLY_URL } from "./protocols/SpotAndFlyRemote";
 import { isAndroid, isTauri, isTauriMacOS } from "./utils/checkCompatibility";
 import CapacitorSerial from "./protocols/CapacitorSerial";
 import CapacitorBle from "./protocols/CapacitorBle";
@@ -45,7 +46,7 @@ const WEBSOCKET_URL = urlPattern("wss?");
 const TCP_URL = urlPattern("tcp");
 
 /** The slot names a platform registers its transports under. */
-export type SerialProtocolName = "serial" | "bluetooth" | "tcp" | "websocket" | "virtual";
+export type SerialProtocolName = "serial" | "bluetooth" | "tcp" | "websocket" | "virtual" | "spotandfly";
 
 /**
  * What a caller connects to: a port path, a URL, "manual" or "virtual". A function also
@@ -177,6 +178,8 @@ class Serial extends EventTarget {
 
         // Always add virtual protocol
         this._protocols.push({ name: "virtual", instance: new VirtualSerial() });
+        // Spot&Fly remoto: el dron que alguien comparte desde la app Spot&Fly, por internet (spotandfly://CÓDIGO)
+        this._protocols.push({ name: "spotandfly", instance: new SpotAndFlyRemote() });
 
         // Forward events from all protocols to the Serial class
         this._setupEventForwarding();
@@ -262,6 +265,9 @@ class Serial extends EventTarget {
         // Default to serial for typical serial device identifiers.
         if (isFn || s === "virtual") {
             return this._instance("virtual");
+        }
+        if (SPOTANDFLY_URL.test(s.trim())) {
+            return this._instance("spotandfly");
         }
         // WebSocket endpoints (ws://, wss://) use the HTTP upgrade handshake. Thus they need the
         // WebSocket protocol, and not raw TCP. Tauri has two different slots: "websocket" and the

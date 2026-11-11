@@ -1,0 +1,14 @@
+{
+    "hosting": {
+        "target": "betaflight",
+        "public": "src/dist",
+        "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+        "rewrites": [{ "source": "**", "destination": "/index.html" }],
+        "headers": [
+            {
+                "source": "/@(index.html|sw.js|manifest.webmanifest)",
+                "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+            }
+        ]
+    }
+}
