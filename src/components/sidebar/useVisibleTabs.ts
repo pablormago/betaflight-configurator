@@ -26,6 +26,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useFlightControllerStore } from "@/stores/fc";
 import type { BetaflightModel } from "../init";
 import { useNavigationStore } from "@/stores/navigation";
+import { SPOTANDFLY_TABS } from "@/js/spotandflyTabs";
 
 type SidebarItem = (typeof sidebarItems)[number];
 
@@ -81,6 +82,8 @@ export function useVisibleTabs(): ComputedRef<SidebarItem[]> {
         sidebarItems
             .filter((item) => isModeVisible(item.mode))
             .filter((item) => !item.hideInSidebar)
+            // Spot&Fly: solo las pestañas que tiene la app
+            .filter((item) => SPOTANDFLY_TABS.has(item.tab ?? item.key))
             .filter((item) => isAllowed(item))
             .filter((item) => isItemVisible(item, ctx.value)),
     );

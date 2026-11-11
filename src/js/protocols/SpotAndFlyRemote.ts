@@ -69,6 +69,9 @@ export const SPOTANDFLY_URL = /^spotandfly:\/\/([A-Za-z0-9]{4,12})(?:\?(.*))?$/i
 /** Tiempo de espera MSP mientras dura la sesión: por internet una ida y vuelta tarda más que por cable (el
  *  Configurator usa 1000 ms y reenvía). Se mide en la prueba de concepto y se ajusta. */
 const REMOTE_MSP_TIMEOUT_MS = 4000;
+/** Con el anfitrión fuera de su app (sesión `hostPaused`) no llegan respuestas hasta que vuelva: se espera en vez de
+ *  cortar. Cada reintento del MSP arma su temporizador con el valor vigente, así que también cubre lo ya enviado. */
+const PAUSED_MSP_TIMEOUT_MS = 10 * 60 * 1000;
 
 function bytesOf(data: Payload): Uint8Array {
     return data instanceof ArrayBuffer
@@ -147,6 +150,8 @@ class SpotAndFlyRemote extends EventTarget {
     /** Para la medición de la prueba: momento de envío de cada petición por código MSP. */
     private sentAt: Map<number, number[]>;
     rtts: number[];
+    private hostPaused: boolean;
+    private pauseDialogId: number | null;
 
     constructor() {
         super();
@@ -169,6 +174,8 @@ class SpotAndFlyRemote extends EventTarget {
         this.savedTimeout = null;
         this.sentAt = new Map();
         this.rtts = [];
+        this.hostPaused = false;
+        this.pauseDialogId = null;
         this.connect = this.connect.bind(this);
     }
 
@@ -305,6 +312,7 @@ class SpotAndFlyRemote extends EventTarget {
 
         // Fin de sesión por el anfitrión («Cortar»)
         this.sessionUnsub = onSnapshot(this.sessionRef, (snap) => {
+            void this.applyHostPaused(snap.get("hostPaused") === true);
             if (snap.get("status") === "ended") {
                 console.log(`${this.logHead} El anfitrión cortó la sesión`);
                 void this.closeFromRemote();
@@ -321,9 +329,14 @@ class SpotAndFlyRemote extends EventTarget {
             this.fail(`No se pudo escuchar la sesión ${this.code}`);
             return;
         }
-        await this.setMspTimeout(REMOTE_MSP_TIMEOUT_MS);
+        await this.setMspTimeout(this.hostPaused ? PAUSED_MSP_TIMEOUT_MS : REMOTE_MSP_TIMEOUT_MS);
         this.connected = true;
         console.log(`${this.logHead} Unido a ${this.code} como «${this.nick}»`);
+        if (this.hostPaused) {
+            // El anfitrión ya estaba fuera de su app al unirse: que salga la ventana de espera igualmente
+            this.hostPaused = false;
+            void this.applyHostPaused(true);
+        }
         this.dispatchEvent(new CustomEvent<SpotAndFlyConnectDetail>("connect", { detail: { socketId: this.address } }));
     }
 
@@ -345,6 +358,50 @@ class SpotAndFlyRemote extends EventTarget {
                 }
                 await new Promise((r) => setTimeout(r, 800));
             }
+        }
+    }
+
+    /** El anfitrión salió o volvió a su app: alarga o restaura la espera del MSP y lo avisa en el registro. */
+    private async applyHostPaused(paused: boolean): Promise<void> {
+        if (paused === this.hostPaused) {
+            return;
+        }
+        this.hostPaused = paused;
+        if (this.connected) {
+            await this.setMspTimeout(paused ? PAUSED_MSP_TIMEOUT_MS : REMOTE_MSP_TIMEOUT_MS);
+        }
+        // Import dinámico, como MSP: evita el ciclo serial.ts → este fichero → ...
+        const [{ gui_log }, { i18n }, { useDialogStore }] = await Promise.all([
+            import("../gui_log"),
+            import("../localization"),
+            import("../../stores/dialog"),
+        ]);
+        gui_log(i18n.getMessage(paused ? "spotandflyHostPaused" : "spotandflyHostBack"));
+        // A la vista (Pablo 11/11: en el registro no se veía): ventana de espera que se cierra sola al volver el
+        // anfitrión, con «Desconectar» por si no se quiere esperar.
+        const dialogs = useDialogStore();
+        if (paused && this.connected) {
+            dialogs.open(
+                "WaitDialog",
+                {
+                    title: i18n.getMessage("spotandflyHostPaused"),
+                    showCancel: true,
+                    cancelText: i18n.getMessage("disconnect"),
+                },
+                {
+                    cancel: () => {
+                        dialogs.close();
+                        this.pauseDialogId = null;
+                        void import("../serial_backend").then(({ connectDisconnect }) => connectDisconnect());
+                    },
+                },
+            );
+            this.pauseDialogId = dialogs.activeDialog?.id ?? null;
+        } else if (!paused && this.pauseDialogId !== null) {
+            if (dialogs.activeDialog?.id === this.pauseDialogId) {
+                dialogs.close();
+            }
+            this.pauseDialogId = null;
         }
     }
 
@@ -419,6 +476,15 @@ class SpotAndFlyRemote extends EventTarget {
             await this.sendToHost({ kind: "guestLeaving" }).catch(() => undefined);
         }
         await this.setMspTimeout(null);
+        this.hostPaused = false;
+        if (this.pauseDialogId !== null) {
+            const { useDialogStore } = await import("../../stores/dialog");
+            const dialogs = useDialogStore();
+            if (dialogs.activeDialog?.id === this.pauseDialogId) {
+                dialogs.close();
+            }
+            this.pauseDialogId = null;
+        }
         this.sessionRef = null;
         this.bytesReceived = 0;
         this.bytesSent = 0;

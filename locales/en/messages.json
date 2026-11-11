@@ -3599,6 +3599,14 @@
     "motorsMaster": {
         "message": "Master"
     },
+    "spotandflyHostPaused": {
+        "message": "The host has left Spot&amp;Fly. Waiting for them to come back…",
+        "description": "Spot&Fly remoto: el anfitrión salió de su app"
+    },
+    "spotandflyHostBack": {
+        "message": "The host is back in Spot&amp;Fly.",
+        "description": "Spot&Fly remoto: el anfitrión volvió a su app"
+    },
     "spotandflyMotorsRemote": {
         "message": "<strong>Motor test not available remotely.</strong><br />For safety, motors cannot be spun from the web. Ask the drone's owner to run the test from the Spot&amp;Fly app. Everything else on this tab can be changed.",
         "description": "Spot&Fly: aviso en Motores cuando se conecta por Spot&Fly remoto"

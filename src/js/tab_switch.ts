@@ -28,6 +28,7 @@ import { mountVueTab, vueTabState } from "./vue_tab_mounter";
 import { sidebarItems } from "../components/sidebar/sidebar_items";
 import { useConnectionStore } from "../stores/connection";
 import { useNavigationStore } from "../stores/navigation";
+import { SPOTANDFLY_TABS } from "./spotandflyTabs";
 
 export interface SwitchTabOptions {
     /**
@@ -128,7 +129,8 @@ export function switchTab(tabKey: string, options: SwitchTabOptions = {}): boole
     }
 
     const isLoginSectionTab = mode === "loggedin";
-    if (!navigationStore.allowedTabs.includes(tabKey) && !isLoginSectionTab) {
+    // Spot&Fly: ni por enlace ni por atajo se abre una pestaña que no tiene la app
+    if ((!navigationStore.allowedTabs.includes(tabKey) || !SPOTANDFLY_TABS.has(tabKey)) && !isLoginSectionTab) {
         handleDisallowedTab(tabKey, label);
         return false;
     }

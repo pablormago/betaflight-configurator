@@ -525,16 +525,18 @@ function beginConnect(selectedDevice: string, automatic: boolean) {
         { baudRate: DeviceHandler.devicePicker.selectedBauds },
         selectedDevice === "virtual" ? onOpenVirtual : undefined,
     );
-    console.log("Press Ctrl+I to open CLI panel");
 }
 
 function isCliHotkey(e: KeyboardEvent): boolean {
     return e.code === "KeyI" && e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey;
 }
 
+// Spot&Fly: sin CLI, tampoco el panel rápido de Ctrl+I (en remoto la CLI no se delega).
+const SPOTANDFLY_CLI_HOTKEY = false;
+
 function registerCliHotkey() {
     document.onkeydown = function (e) {
-        if (!isCliHotkey(e)) {
+        if (!SPOTANDFLY_CLI_HOTKEY || !isCliHotkey(e)) {
             return;
         }
         const fcStore = useFlightControllerStore();

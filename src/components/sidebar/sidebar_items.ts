@@ -60,7 +60,8 @@ export const sidebarItems: SidebarItem[] = [
     { key: "ports", mode: "connected", i18n: "tabPorts", icon: "i-lucide-cable" },
     { key: "configuration", mode: "connected", i18n: "tabConfiguration", icon: "i-lucide-settings" },
     { key: "power", mode: "connected", i18n: "tabPower", icon: "i-lucide-battery" },
-    { key: "failsafe", mode: "connected", i18n: "tabFailsafe", icon: "i-lucide-shield-alert", expert: true },
+    // Spot&Fly: Failsafe está en la app sin modo experto
+    { key: "failsafe", mode: "connected", i18n: "tabFailsafe", icon: "i-lucide-shield-alert" },
     { key: "presets", mode: "connected", i18n: "tabPresets", icon: "i-lucide-wand-2" },
     { key: "pid_tuning", mode: "connected", i18n: "tabPidTuning", icon: "i-lucide-gauge" },
     { key: "receiver", mode: "connected", i18n: "tabReceiver", icon: "i-lucide-radio" },
