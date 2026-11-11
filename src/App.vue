@@ -6,7 +6,7 @@
             <!-- Spot&Fly: en navegador móvil no había forma de abrir el menú (el botón se quitó en a3379c11 para la
                  app Android, que usa otra barra). Botón flotante solo en pantalla estrecha y fuera de esa app. -->
             <UButton
-                v-if="showBrowserMenuButton"
+                v-if="showBrowserMenuButton && !isLandingTab"
                 class="floating-menu"
                 icon="i-lucide-menu"
                 color="neutral"
@@ -34,7 +34,11 @@
                     <Sidebar />
                     <div class="clear-both"></div>
                 </div>
-                <div id="content" @scroll.passive="onContentScroll">
+                <div
+                    id="content"
+                    :class="{ 'has-floating-menu': showBrowserMenuButton && !isLandingTab }"
+                    @scroll.passive="onContentScroll"
+                >
                     <keep-alive :include="keptAliveTabs">
                         <component
                             :is="activeTabComponent"
@@ -346,13 +350,9 @@ watch(
     border: 1px solid var(--surface-200);
     box-shadow: var(--shadow-chrome-floating);
 }
-body:not(.mobile-app-shell) {
-    @media all and (max-width: 575px), all and (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
-        /* Hueco arriba para que el botón no tape el título de la pestaña */
-        #content {
-            padding-top: calc(3rem + var(--bf-inset-top));
-        }
-    }
+/* Hueco arriba para que el botón flotante no tape el título de la pestaña (en la portada va dentro de la página) */
+#content.has-floating-menu {
+    padding-top: calc(3rem + var(--bf-inset-top));
 }
 
 .mobile-topbar--hidden {

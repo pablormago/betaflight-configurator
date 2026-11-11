@@ -8,6 +8,18 @@
                 </div>
             </div>
             <SponsorTile sponsor-type="landing" />
+            <!-- Spot&Fly: en la portada del navegador móvil, el botón ☰ va aquí (bajo las marcas, encima de Comunidad) -->
+            <div v-if="showBrowserMenuButton" class="landing-menu-button">
+                <UButton
+                    icon="i-lucide-menu"
+                    color="neutral"
+                    variant="soft"
+                    size="lg"
+                    square
+                    :aria-label="$t('openSidebarMenu')"
+                    @click="toggleMobileSidebar()"
+                />
+            </div>
             <div class="content_mid grid-row">
                 <div class="column third_left text1 grid-col col4">
                     <div class="socialMediaParagraph">
@@ -99,7 +111,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { computed, defineComponent, inject, ref } from "vue";
+import { useMediaQuery } from "@vueuse/core";
+import { isAndroid } from "../../js/utils/checkCompatibility";
 import BaseTab from "./BaseTab.vue";
 import SponsorTile from "../sponsor/SponsorTile.vue";
 import { i18n } from "../../js/localization";
@@ -112,6 +126,11 @@ export default defineComponent({
     },
     setup() {
         const availableLanguages = ref(["DEFAULT", ...i18n.getLanguagesAvailables()]);
+        // Spot&Fly: misma condición que el botón flotante de App.vue (pantalla estrecha, fuera de la app Android)
+        const isCompact = useMediaQuery(
+            "(max-width: 575px), (max-width: 950px) and (max-height: 500px) and (orientation: landscape)",
+        );
+        const toggleMobileSidebar = inject<() => void>("toggleMobileSidebar", () => {});
         const selectedLanguage = ref(i18n.selectedLanguage);
 
         function changeLanguage(lang: string) {
@@ -124,6 +143,8 @@ export default defineComponent({
         return {
             availableLanguages,
             selectedLanguage,
+            showBrowserMenuButton: computed(() => !isAndroid() && isCompact.value),
+            toggleMobileSidebar,
             changeLanguage,
             i18n,
         };
@@ -143,6 +164,11 @@ export default defineComponent({
 
 <style lang="less">
 .tab-landing {
+    /* Spot&Fly: alineado con el texto de «Comunidad» (content_mid 15px + columna 10px) */
+    .landing-menu-button {
+        padding: 4px 25px 0;
+    }
+
     .content_wrapper {
         display: flex;
         flex-direction: column;
